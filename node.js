@@ -4,7 +4,7 @@ var express = require('express')
 var app = express()
 
 app.get('/api/', function (req, res) {
-  var get = (text) => fetch('https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=' + text)
+  var get = (text) => fetch('https://sv.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=' + text)
     .then((response) => response.json())
     .then(handleResponse)
     .catch(err => console.log(err)
