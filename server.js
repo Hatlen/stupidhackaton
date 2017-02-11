@@ -18,8 +18,8 @@ app.get('/api/', function (req, res) {
 
 app.use('/', express.static('dist'));
 
-app.listen(8888, function () {
-  console.log('Example app listening on port 3000!')
+app.listen(process.env.PORT || 6666, function () {
+  console.log('Example app listening on port 6666!')
 })
 
 
