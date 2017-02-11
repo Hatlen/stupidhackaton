@@ -4,15 +4,17 @@ var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEv
 
 var wordResponses = [
   { word: 'hej', type: 'response', responses: ['Hallå där', 'Hejsan', 'Tjena'] },
-  { word: 'hungrig', type: 'response', responses: ['Du borde ta en cigg!', 'Du menar hangry!', 'Drick vatten!'] },
-  { word: 'törstig', type: 'response', responses: ['Ät mat!', 'Ät godis!'] },
+  { word: 'hallå', type: 'response', responses: ['Hallå där', 'Hejsan', 'Tjena'] },
+  { word: 'hejsan', type: 'response', responses: ['Hallå där', 'Hejsan', 'Tjena'] },
+  { word: 'tjena', type: 'response', responses: ['Hallå där', 'Hejsan', 'Tjena'] },
+  { word: 'hungrig', type: 'response', responses: ['Du borde ta en cigg!', 'Du menar hangry!', 'Drick vatten så går det nog över!'] },
+  { word: 'törstig', type: 'response', responses: ['Du bör äta en bit mat!', 'Det är nog bäst om du äter godis!'] },
   { word: 'wifi', type: 'response', responses: ['Titta ut!', 'Ta bussen!']},
   { word: 'stockholm', type: 'wiki' },
   { word: 'internet', type: 'wiki' },
   { word: 'oslo', type: 'wiki'},
   { word: 'köpenhamn', type: 'wiki'},
   { word: 'Boston', type: 'wiki' },
-  { word: 'Polis', type: 'wiki' },
 ];
 
 var wikiPrefix = [
@@ -20,6 +22,13 @@ var wikiPrefix = [
   'Vänta, jag kan berätta om',
   'Visste du förresten att',
 ];
+
+
+function randomIndex(max)
+{
+    max = max - 1;
+    return Math.floor(Math.random()*(max-0+1)+0);
+}
 
 var getWiki = (text) => fetch('/api/?query=' + text)
     .then((response) => response.text());
@@ -49,24 +58,20 @@ function newSpeechRecognition() {
 
     if (wordResponse) {
       if (wordResponse.type === 'response') {
+
         var responseLength = wordResponse.responses.length;
-        //console.log(responseLength);
-        var index = Math.floor(Math.random() * responseLength);
-        console.log(index);
-        console.log(wordResponse.responses[index]);
+        var index = randomIndex(responseLength);
+
         speak(wordResponse.responses[index]);
       } else if(wordResponse.type === 'wiki') {
         getWiki(wordResponse.word)
           .then(response => {
             var firstSentence = response.split('.')[0];
 
-            const index = Math.floor(Math.random() * wikiPrefix.length);
+            const index = randomIndex(wikiPrefix.length);
 
             speak(`${wikiPrefix[index]} ${firstSentence}`);
           });
-      } else if(wordResponse.type === 'color') {
-        document.querySelector('body').style.backgroundColor = wordResponse.color;
-
       }
     }
   }
@@ -89,23 +94,25 @@ function newSpeechRecognition() {
   recognition.start();
 }
 
-var voice;
+var voices;
+
 window.speechSynthesis.onvoiceschanged = function(e) {
-  const voices = speechSynthesis.getVoices().find((voice) => {
-    // console.log(voice.lang)
+  voices = speechSynthesis.getVoices().filter((voice) => {
     return voice.lang === 'sv-SE';
   });
-
-  voice = voices[0];
 };
+
+function getRandomVoice(){
+  var index = randomIndex(voices.length); 
+  voice = voices[index];
+
+  return voice;
+}
 
 function speak(text) {
   var msg = new SpeechSynthesisUtterance();
   msg.text = text;
-  msg.voice = voice;
-  // console.log(voice);
-
-  // msg.onend = (e) => console.log('Finished talking');
+  msg.voice = getRandomVoice();
 
 
   document.querySelector('.text_to_speech').innerHTML = text;
