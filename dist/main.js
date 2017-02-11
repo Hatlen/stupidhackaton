@@ -46,6 +46,7 @@ function newSpeechRecognition() {
   recognition.maxAlternatives = 1;
 
   recognition.onresult = function (event) {
+    recognition.stop();
 
     console.log('Confidence: ' + event.results[0][0].confidence);
     console.log('Result', event.results[0][0].transcript);
@@ -73,12 +74,18 @@ function newSpeechRecognition() {
             speak(`${wikiPrefix[index]} ${firstSentence}`);
           });
       }
+    } else {
+      newSpeechRecognition();
     }
   }
 
   recognition.onspeechend = function() {
     recognition.stop();
     newSpeechRecognition();
+    console.log('onspeechend');  
+  }
+  recognition.onend = function() {
+   console.log('onend');   
   }
 
   recognition.onnomatch = function(event) {
@@ -87,7 +94,8 @@ function newSpeechRecognition() {
   }
 
   recognition.onerror = function(event) {
-    console.log('Error')
+    console.log('Error');
+    newSpeechRecognition();
     // diagnostic.textContent = 'Error occurred in recognition: ' + event.error
   }
 
@@ -120,6 +128,7 @@ function speak(text) {
 
   msg.onend = function(event) {
     console.log('Utterance has finished being spoken after ' + event.elapsedTime + ' milliseconds.');
+    newSpeechRecognition();
   }
 }
 
